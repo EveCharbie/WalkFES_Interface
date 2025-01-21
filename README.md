@@ -5,5 +5,5 @@
 # How to install
 
 ```
-conda install -c conda-forge pyqt biorbd biosiglive pysciencemode scikit-optimize scipy
+conda install -c conda-forge pyqt biorbd biosiglive pysciencemode scikit-optimize scipy ezc3d
 ```
