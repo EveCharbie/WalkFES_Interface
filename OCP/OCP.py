@@ -169,7 +169,7 @@ def prepare_ocp(biorbd_model_path: str):
 if __name__ == "__main__":
 
     biorbd_model_path = "data/VIF_04_tau.bioMod"
-    file_path = "data/VIF_04_Cond0007_processed6.c3d"
+    file_path = "data/VIF_04_Cond0001_processed6.c3d"
 
     exp_data = ExperimentalData(file_path=file_path, biorbd_model_path=biorbd_model_path)
     exp_data.find_event_timestamps()
