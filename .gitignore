@@ -4,3 +4,11 @@
 __pycache__/
 
 .DS_Store
+
+OCP/data/Geometry/
+
+OCP/data/Geometry_cleaned/
+
+OCP/data/
+
+*.png
