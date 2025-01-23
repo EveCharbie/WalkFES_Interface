@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Trial Rating</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Trial Rating & Ordering</h1>
+
+    <div class="container">
+        <!-- COLUMN 1: Text boxes + Submit button -->
+        <div class="column" id="col1">
+            <div class="form-section">
+                <label for="subjectName">Subject Name:</label>
+                <input type="text" id="subjectName" required />
+            </div>
+
+            <div class="form-section">
+                <label for="dataCollectionName">Data Collection Name:</label>
+                <input type="text" id="dataCollectionName" required />
+            </div>
+
+            <div class="form-section">
+                <button onclick="submitData()">Submit</button>
+            </div>
+        </div>
+
+        <!-- COLUMN 2: Vertical slider -->
+        <div class="column" id="col2">
+            <div class="slider-section">
+                <label>Rating of the current trial:</label>
+                <div class="slider-container">
+                    <!-- Numbers and tick marks -->
+                    <div class="slider-ticks">
+                        <span class="tick">10</span>
+                        <span class="tick">8</span>
+                        <span class="tick">6</span>
+                        <span class="tick">4</span>
+                        <span class="tick">2</span>
+                        <span class="tick">0</span>
+                    </div>
+                    
+                    <!-- Slider -->
+                    <input type="range" id="trialRating" min="0" max="10" step="0.25" value="5" orient="vertical" />
+                    
+                    <!-- Trial labels on the right -->
+                    <div class="trial-labels">
+                        <span class="vertical-label">Trial5</span>
+                        <span class="vertical-label">Trial4</span>
+                        <span class="vertical-label">Trial3</span>
+                        <span class="vertical-label">Trial2</span>
+                        <span class="vertical-label">Trial1</span>
+                        <span class="vertical-label" id="currentTrialLabel">CurrentTrial=5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMN 3: Ordering (draggable labels) -->
+        <div class="column" id="col3">
+            <p>Drag "Current Trial" to your desired position among previous trials:</p>
+            <div id="previousTrials">
+                <div class="trial-label" draggable="false">Trial1</div>
+                <div class="trial-label" draggable="false">Trial2</div>
+                <div class="trial-label" draggable="false">Trial3</div>
+                <div class="trial-label" draggable="false">Trial4</div>
+                <div class="trial-label" draggable="false">Trial5</div>
+                <div class="trial-label current" draggable="true">CurrentTrial</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>

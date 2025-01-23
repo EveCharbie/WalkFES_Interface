@@ -1,0 +1,167 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+/* Container for the three columns */
+.container {
+  display: flex;
+  gap: 20px;
+}
+
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Form sections in the first column */
+.form-section {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+input[type="text"] {
+  width: 200px;
+  padding: 8px;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Second column: vertical slider styling */
+.slider-section {
+  margin-top: 20px;
+  position: relative;
+  height: 800px;  /* Increased height */
+  width: 400px;   /* Fixed width */
+}
+
+.slider-container {
+  position: relative;
+  height: 400px;  /* Increased height */
+  margin-left: 40px;  /* More space for numbers */
+}
+
+/* Numbers and tick marks */
+.slider-ticks {
+  position: absolute;
+  left: 0;
+  height: 400px;  /* Match slider height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tick {
+  position: relative;
+  font-size: 10px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.tick::after {
+  content: '—';  /* Em dash instead of line */
+  position: absolute;
+  left: 25px;
+  color: black;
+}
+
+/* Slider styling */
+#trialRating {
+  position: absolute;
+  left: 60px;
+  height: 400px;  /* Taller slider */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;  /* Make slider thicker */
+  background: #007bff;
+  transform: none;  /* Remove rotation */
+  border-radius: 0;  /* Square edges */
+}
+
+#trialRating::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;  /* Larger thumb */
+  height: 30px;  /* Larger thumb */
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-left: -7.5px;  /* Center the thumb */
+}
+
+#trialRating::-moz-range-thumb {
+  width: 30px;
+  height: 30px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  margin-left: -7.5px;
+}
+
+/* Make the slider vertical */
+#trialRating {
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* WebKit */
+}
+
+/* Trial labels on the right */
+.trial-labels {
+  position: absolute;
+  right: +200px;  /* Change here for the iPad screen ! */
+  top: 0;
+  height: 600px;  /* Match slider height */
+  display: flex;
+  flex-direction: column;
+  /*justify-content: space-between;*/
+}
+
+.vertical-label {
+  /* white-space: nowrap; */
+  position: absolute;
+  top: var(--label-position);
+  text-align: left;
+  height: auto;
+  font-size: 10px;
+  height: 10px;
+}
+
+/* Third column: ordering trials list */
+#previousTrials {
+  border: 1px solid #ccc;
+  width: 200px;
+  min-height: 200px;
+  padding: 10px;
+  position: relative;
+  margin-top: 10px;
+}
+
+.trial-label {
+  background-color: #eee;
+  margin: 5px 0;
+  padding: 5px;
+}
+
+.current {
+  background-color: #ffa;
+  border: 2px dashed #999;
+  cursor: move;
+}
+
+.drag-over {
+  border: 2px dashed #000;
+}

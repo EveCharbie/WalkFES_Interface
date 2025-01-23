@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Trial Ranking</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Trial Rating & Ordering</h1>
+
+  <div class="container">
+    <!-- COLUMN 1: Text boxes + Submit button -->
+    <div class="column" id="col1">
+
+      <div class="form-section">
+        <label for="subjectName">Subject Name:</label>
+        <input type="text" id="subjectName" required />
+      </div>
+
+      <div class="form-section">
+        <label for="dataCollectionName">Data Collection Name:</label>
+        <input type="text" id="dataCollectionName" required />
+      </div>
+
+      <div class="form-section">
+        <button onclick="submitData()">Submit</button>
+      </div>
+
+    </div>
+
+    <!-- COLUMN 2: Vertical slider -->
+    <div class="column" id="col2">
+      <div class="slider-section">
+        <label for="trialRating">Rating of the current trial:</label>
+        <div class="slider-container">
+          <!-- Use a <datalist> for tick marks -->
+          <input type="range" id="trialRating" min="0" max="10" step="0.25" list="tickmarks" />
+          <datalist id="tickmarks">
+            <option value="0" label="0"></option>
+            <option value="1" label="1"></option>
+            <option value="2" label="2"></option>
+            <option value="3" label="3"></option>
+            <option value="4" label="4"></option>
+            <option value="5" label="5"></option>
+            <option value="6" label="6"></option>
+            <option value="7" label="7"></option>
+            <option value="8" label="8"></option>
+            <option value="9" label="9"></option>
+            <option value="10" label="10"></option>
+          </datalist>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- COLUMN 3: Ordering (draggable labels) -->
+    <div class="column" id="col3">
+      <p>Drag "Current Trial" to your desired position among previous trials:</p>
+      <div id="previousTrials">
+        <div class="trial-label" draggable="false">Trial1</div>
+        <div class="trial-label" draggable="false">Trial2</div>
+        <div class="trial-label" draggable="false">Trial3</div>
+        <div class="trial-label" draggable="false">Trial4</div>
+        <div class="trial-label" draggable="false">Trial5</div>
+        <!-- The current trial label is special -->
+        <div class="trial-label current" draggable="true" id="currentTrialLabel">
+          CurrentTrial
+        </div>
+      </div>
+    </div>
+  </div><!-- end container -->
+
+  <script src="index.js"></script>
+
+</body>
+</html>

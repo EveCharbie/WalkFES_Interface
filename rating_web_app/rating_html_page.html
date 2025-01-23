@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Trial Ranking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .form-section {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 8px;
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    /* Vertical slider styling */
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    input[type="range"] {
+      /* Make the slider vertical */
+      writing-mode: bt-lr; /* Or "vertical-lr" depending on browser support */
+      -webkit-appearance: slider-vertical; /* Some browsers need this prefix */
+      width: 300px;  /* effectively becomes the 'height' in vertical mode */
+      height: 30px;  /* effectively the 'width' in vertical mode */
+      margin: 40px 0;
+    }
+
+    /* The 'previous trials' drag-and-drop list */
+    #previousTrials {
+      border: 1px solid #ccc;
+      width: 300px;
+      min-height: 200px;
+      padding: 10px;
+      position: relative;
+    }
+    .trial-label {
+      background-color: #eee;
+      margin: 5px 0;
+      padding: 5px;
+      cursor: move; /* show a 'move' cursor */
+    }
+    .current {
+      background-color: #ffa;
+      border: 2px dashed #999;
+    }
+    /* When dragging over a zone, show a highlight */
+    .drag-over {
+      border: 2px dashed #000;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Rank the Current Trial</h1>
+
+  <!-- 1) Text box for subject name -->
+  <div class="form-section">
+    <label for="subjectName">Subject Name:</label>
+    <input type="text" id="subjectName" required />
+  </div>
+
+  <!-- 2) Text box for data collection name -->
+  <div class="form-section">
+    <label for="dataCollectionName">Data Collection Name:</label>
+    <input type="text" id="dataCollectionName" required />
+  </div>
+
+  <!-- 3) Participant's rating of the current trial -->
+  <div class="form-section">
+    <label for="trialRating">Rating of the current trial:</label>
+    <input type="range" min="0" max="10" step="0.25" id="trialRating" required />
+  </div>
+
+  <!-- 4) Display previous trial labels in a vertical list + "Current Trial" label to drag -->
+  <p>Drag the "Current Trial" label to your desired position in the list:</p>
+  <div id="previousTrials">
+    <!-- Suppose these are your "previous trials" from top to bottom.
+         In a real scenario, you might dynamically generate these from a database
+         or from the server. For now, let’s hardcode them. -->
+    <div class="trial-label" draggable="true">Trial1</div>
+    <div class="trial-label" draggable="true">Trial2</div>
+    <div class="trial-label" draggable="true">Trial3</div>
+    <!-- The current trial label is special -->
+    <div class="trial-label current" draggable="true" id="currentTrialLabel">
+      CurrentTrial
+    </div>
+    <div class="trial-label" draggable="true">Trial4</div>
+    <div class="trial-label" draggable="true">Trial5</div>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <button onclick="submitData()">Submit</button>
+  </div>
+
+  <script>
+    /*******************************************************************
+     * DRAG AND DROP LOGIC
+     * We allow the user to drag any .trial-label item and rearrange them
+     *******************************************************************/
+    let dragSrcEl = null;
+
+    function handleDragStart(e) {
+      // store the element being dragged
+      dragSrcEl = this;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault(); // allow drop
+      }
+      return false;
+    }
+
+    function handleDragEnter(e) {
+      this.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+      this.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation(); // stops the browser from redirecting.
+      }
+      if (dragSrcEl !== this) {
+        // Swap the dragged element with the drop target
+        let tempHTML = this.innerHTML;
+        this.innerHTML = dragSrcEl.innerHTML;
+        dragSrcEl.innerHTML = tempHTML;
+      }
+      return false;
+    }
+
+    function handleDragEnd(e) {
+      // remove highlight from all
+      const items = document.querySelectorAll('.trial-label');
+      items.forEach((item) => {
+        item.classList.remove('drag-over');
+      });
+    }
+
+    // Attach event listeners to each trial label
+    const items = document.querySelectorAll('.trial-label');
+    items.forEach((item) => {
+      item.addEventListener('dragstart', handleDragStart, false);
+      item.addEventListener('dragenter', handleDragEnter, false);
+      item.addEventListener('dragover', handleDragOver, false);
+      item.addEventListener('dragleave', handleDragLeave, false);
+      item.addEventListener('drop', handleDrop, false);
+      item.addEventListener('dragend', handleDragEnd, false);
+    });
+
+
+    /*******************************************************************
+     * FORM SUBMISSION TO GOOGLE SHEETS (via Apps Script)
+     *******************************************************************/
+    // Replace with the URL you get after deploying your Apps Script.
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwdtlfQpRdrJQm9ZenF2RToRIhOAM06nSIKGWBZSEsuN818sn0ft5NXpapvDUjXcdwHpA/exec';
+
+    function submitData() {
+      const subjectName = document.getElementById('subjectName').value.trim();
+      const dataCollectionName = document.getElementById('dataCollectionName').value.trim();
+
+      if (!subjectName || !dataCollectionName) {
+        alert("Please fill in both Subject Name and Data Collection Name.");
+        return;
+      }
+
+      // Grab all the trials in order
+      const trialElements = document.querySelectorAll('#previousTrials .trial-label');
+      const trialOrderArray = [];
+      trialElements.forEach(label => {
+        trialOrderArray.push(label.textContent.trim());
+      });
+      // E.g. ["Trial1","CurrentTrial","Trial2","Trial3","Trial4","Trial5"]
+
+      const trialOrderString = trialOrderArray.join(',');
+
+      // Build the POST request body as FormData
+      const formData = new FormData();
+      formData.append('subjectName', subjectName);
+      formData.append('dataCollectionName', dataCollectionName);
+      formData.append('trialRating', trialRating);
+      formData.append('trialOrder', trialOrderString);
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then((json) => {
+        if (json.result === "success") {
+          alert("Submitted successfully!");
+          // Optionally clear fields or do other UI updates
+        } else {
+          alert("Error: " + JSON.stringify(json.error));
+        }
+      })
+      .catch(error => {
+        console.error('Error!', error);
+        alert('Something went wrong! Check console for details.');
+      });
+    }
+  </script>
+
+</body>
+</html>
