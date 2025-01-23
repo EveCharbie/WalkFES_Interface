@@ -2,6 +2,7 @@ import ezc3d
 import biorbd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import colormaps
 
 
 
@@ -214,7 +215,7 @@ class ExperimentalData:
             left_heel_moving, np.flatnonzero(np.diff(left_heel_moving) > 1) + 1
         )
         for sequence in left_heel_moving_sequence:
-            self.events["left_leg_heel_off"] += [int(sequence[0])]
+            self.events["left_leg_heel_off"] += [int(sequence[0]*self.markers_dt/self.analogs_dt)]
         # Right
         right_cal_velocity = np.diff(self.markers_sorted[2, self.model_marker_names.index("RCAL"), :]) / self.markers_dt
         right_heel_moving = np.where(right_cal_velocity > 0.1)[0]
@@ -222,7 +223,7 @@ class ExperimentalData:
             right_heel_moving, np.flatnonzero(np.diff(right_heel_moving) > 1) + 1
         )
         for sequence in right_heel_moving_sequence:
-            self.events["right_leg_heel_off"] += [int(sequence[0])]
+            self.events["right_leg_heel_off"] += [int(sequence[0]*self.markers_dt/self.analogs_dt)]
 
 
     def detect_toes_off(self):
@@ -267,15 +268,17 @@ class ExperimentalData:
     def detect_leg_phases_between_events(self, phase_name, init_event_name, closing_event_name):
         # Left
         for init_idx in self.events["left_leg_" + init_event_name]:
-            list_index_idx = np.where(np.array(self.events["left_leg_" + closing_event_name]) - init_idx > 0)[0][0]
+            list_index_idx = np.where(np.array(self.events["left_leg_" + closing_event_name]) - init_idx > 0)[0]
             if list_index_idx.shape != (0,):
+                list_index_idx = list_index_idx[0]
                 next_closing_idx = self.events["left_leg_" + closing_event_name][list_index_idx]
                 self.phases_left_leg[phase_name][init_idx:next_closing_idx + 1] = 1
 
         # Right
         for init_idx in self.events["right_leg_" + init_event_name]:
-            list_index_idx = np.where(np.array(self.events["right_leg_" + closing_event_name]) - init_idx > 0)[0][0]
+            list_index_idx = np.where(np.array(self.events["right_leg_" + closing_event_name]) - init_idx > 0)[0]
             if list_index_idx.shape != (0,):
+                list_index_idx = list_index_idx[0]
                 next_closing_idx = self.events["right_leg_" + closing_event_name][list_index_idx]
                 self.phases_right_leg[phase_name][init_idx:next_closing_idx + 1] = 1
         return
@@ -346,15 +349,87 @@ class ExperimentalData:
         axs[1].plot(self.analogs_time_vector, self.grf_sorted[1, 1, :], '-g', label='Antero-posterior')
         axs[1].plot(self.analogs_time_vector, self.grf_sorted[1, 2, :], '-b', label='Vertical')
 
-        for key in self.phases_left_leg:
-            for phase in self.events[key]:
-                axs[2].axvline(event * self.analogs_dt, color='k')
+        color = colormaps["magma"]
+        for i_phase, key in enumerate(self.phases_left_leg):
+            # Left
+            # axs[0].plot(self.analogs_time_vector, self.phases_left_leg[key], '.', color=color(i_phase/4), label=key)
+            start_idx = 0
+            is_label = False
+            for idx in range(1, self.phases_left_leg[key].shape[0]):
+                if self.phases_left_leg[key][idx] == True:
+                    if self.phases_left_leg[key][idx-1] == False:
+                        start_idx = idx
+                if self.phases_left_leg[key][idx] == False:
+                    if self.phases_left_leg[key][idx-1] == True:
+                        end_idx = idx
+                        if not is_label:
+                            axs[0].axvspan(self.analogs_time_vector[start_idx], self.analogs_time_vector[end_idx],
+                                           alpha=0.2, color=color(i_phase / 4), label=key)
+                            is_label = True
+                        else:
+                            axs[0].axvspan(self.analogs_time_vector[start_idx], self.analogs_time_vector[end_idx], alpha=0.2, color=color(i_phase/4))
+            # Right
+            # axs[1].plot(self.analogs_time_vector, self.phases_right_leg[key], '.', color=color(i_phase/4), label=key)
+            start_idx = 0
+            is_label = False
+            for idx in range(1, self.phases_right_leg[key].shape[0]):
+                if self.phases_right_leg[key][idx] == True:
+                    if self.phases_right_leg[key][idx-1] == False:
+                        start_idx = idx
+                if self.phases_right_leg[key][idx] == False:
+                    if self.phases_right_leg[key][idx-1] == True:
+                        end_idx = idx
+                        if not is_label:
+                            axs[1].axvspan(self.analogs_time_vector[start_idx], self.analogs_time_vector[end_idx],
+                                           alpha=0.2, color=color(i_phase/4), label=key)
+                            is_label = True
+                        else:
+                            axs[1].axvspan(self.analogs_time_vector[start_idx], self.analogs_time_vector[end_idx],
+                                           alpha=0.2, color=color(i_phase / 4))
 
+        for i_phase, key in enumerate(self.phases):
+            # axs[2].plot(self.analogs_time_vector, self.phases[key], '.', color=color(i_phase/8), label=key)
+            start_idx = 0
+            is_label = False
+            for idx in range(1, self.phases[key].shape[0]):
+                if self.phases[key][idx] == True:
+                    if self.phases[key][idx-1] == False:
+                        start_idx = idx
+                if self.phases[key][idx] == False:
+                    if self.phases[key][idx-1] == True:
+                        end_idx = idx
+                        if not is_label:
+                            axs[2].axvspan(self.analogs_time_vector[start_idx], self.analogs_time_vector[end_idx], alpha=0.2, color=color(i_phase/8), label=key)
+                            is_label = True
+                        else:
+                            axs[2].axvspan(self.analogs_time_vector[start_idx], self.analogs_time_vector[end_idx], alpha=0.2, color=color(i_phase/8))
+
+        ##########
+        # color = colormaps["magma"]
+        # for i_phase, key in enumerate(self.phases_left_leg):
+        #     # Left
+        #     for idx in range(1, self.phases_left_leg[key].shape[0]):
+        #         if self.phases_left_leg[key][idx] and idx < self.nb_analog_frames - 1:
+        #             axs[0].axvspan(self.analogs_time_vector[idx], self.analogs_time_vector[idx+1], alpha=0.2, color=color(i_phase/4))
+        #     # Right
+        #     for idx in range(1, self.phases_right_leg[key].shape[0]):
+        #         if self.phases_right_leg[key][idx] and idx < self.nb_analog_frames - 1:
+        #             axs[1].axvspan(self.analogs_time_vector[idx], self.analogs_time_vector[idx+1], alpha=0.2, color=color(i_phase/4))
+        #
+        # for i_phase, key in enumerate(self.phases):
+        #     if self.phases[key][idx] and idx < self.nb_analog_frames - 1:
+        #                 axs[2].axvspan(self.analogs_time_vector[idx], self.analogs_time_vector[idx+1], alpha=0.2, color=color(i_phase/8))
+        ##########
+
+        axs[0].legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0.)
+        axs[1].legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0.)
+        axs[2].legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0.)
         axs[0].set_ylabel('Left leg GRF')
-        axs[0].legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-        axs[0].set_xlim(0, 40000)
+        axs[0].set_xlim(self.analogs_time_vector[20000], self.analogs_time_vector[30000])
         axs[1].set_ylabel('Right leg GRF')
-        axs[1].set_xlim(0, 40000)
+        axs[1].set_xlim(self.analogs_time_vector[20000], self.analogs_time_vector[30000])
+        axs[2].set_ylabel('Phases both legs')
+        axs[2].set_xlim(self.analogs_time_vector[20000], self.analogs_time_vector[30000])
         plt.savefig("GRF.png")
         plt.show()
         print('Here')
